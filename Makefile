@@ -6,6 +6,7 @@ LDFLAGS =
 COMPILE = $(CXX) $(CXXFLAGS)
 DEBUG = 1
 EXECUTABLE_NAME = main
+CXX_OBJECTS = my_lib.o main.o
 
 ifeq ($(DEBUG), 1)
 	CXXFLAGS += -g -O0
@@ -13,14 +14,10 @@ else
 	CXXFLAGS += -O3
 endif
 
-build: main.o my_lib.o
-	$(COMPILE) main.o my_lib.o $(LDFLAGS) -o $(EXECUTABLE_NAME)
+.PHONY: build execute clean
 
-main.o:
-	$(COMPILE) main.cpp -c
-
-my_lib.o:
-	$(COMPILE) my_lib.cpp -c
+build: $(CXX_OBJECTS)
+	$(COMPILE) $^ $(LDFLAGS) -o $(EXECUTABLE_NAME)
 
 execute:
 	main.exe
@@ -29,4 +26,5 @@ clean:
 	del *.exe
 	del *.o
 
-.PHONY: build main.o my_lib.o execute clean
+%.o: %.cpp
+	$(COMPILE) -c $< -o $@
