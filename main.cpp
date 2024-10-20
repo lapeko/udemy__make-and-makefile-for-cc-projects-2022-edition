@@ -1,8 +1,6 @@
-#include "iostream"
-
-using namespace std;
+#include "my_lib.h"
 
 int main() {
-    cout << "Hello world";
+    say_hello();
     return 0;
 }
