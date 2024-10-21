@@ -5,13 +5,15 @@ CXXFLAGS = $(CXX_WARNINGS) -std=$(CXX_VERSION)
 LDFLAGS =
 COMPILE = $(CXX) $(CXXFLAGS)
 DEBUG = 1
-EXECUTABLE_NAME = main
-CXX_OBJECTS = my_lib.o main.o
+CXX_SOURCES = $(wildcard *.cpp)
+CXX_OBJECTS = $(patsubst %.cpp, %.o, $(CXX_SOURCES))
 
 ifeq ($(DEBUG), 1)
 	CXXFLAGS += -g -O0
+	EXECUTABLE_NAME = mainDebug
 else
 	CXXFLAGS += -O3
+	EXECUTABLE_NAME = mainRelease
 endif
 
 .PHONY: build execute clean
