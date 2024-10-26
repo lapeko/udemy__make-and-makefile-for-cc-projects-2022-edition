@@ -1,12 +1,22 @@
-CXX_VERSION = c++17
-CXX = g++
-CXX_WARNINGS = -Wall -Wextra -Wpedantic
-CXXFLAGS = $(CXX_WARNINGS) -std=$(CXX_VERSION)
-LDFLAGS =
-COMPILE = $(CXX) $(CXXFLAGS)
 DEBUG = 1
-CXX_SOURCES = $(wildcard *.cpp)
-CXX_OBJECTS = $(patsubst %.cpp, %.o, $(CXX_SOURCES))
+ENABLE_WARNINGS = 1
+WARNING_AS_ERROR = 0
+CXX_WARNINGS =
+ifeq ($(ENABLE_WARNINGS), 1)
+	CXX_WARNINGS = -Wall -Wextra -Wpedantic
+endif
+ifeq ($(WARNING_AS_ERROR), 1)
+	CXX_WARNINGS += -Werror
+endif
+
+CXX = g++
+CXX_VERSION = c++17
+
+SRC_FOLDER = src
+INCLUDE_FOLDER = include
+BUILD_FOLDER = build
+CXX_SOURCES = $(wildcard $(SRC_FOLDER)/*.cpp)
+CXX_OBJECTS = $(patsubst $(SRC_FOLDER)/%.cpp, $(BUILD_FOLDER)/%.o, $(CXX_SOURCES))
 
 ifeq ($(DEBUG), 1)
 	CXXFLAGS += -g -O0
@@ -15,18 +25,26 @@ else
 	CXXFLAGS += -O3
 	EXECUTABLE_NAME = mainRelease
 endif
+CPPFLAGS = -I $(INCLUDE_FOLDER)
+CXXFLAGS = $(CXX_WARNINGS) -std=$(CXX_VERSION) $(CPPFLAGS)
+LDFLAGS =
 
-.PHONY: build execute clean
+COMPILE = $(CXX) $(CXXFLAGS)
 
-build: $(CXX_OBJECTS)
-	$(COMPILE) $^ $(LDFLAGS) -o $(EXECUTABLE_NAME)
+
+.PHONY: create build execute clean
+
+create:
+	mkdir -p $(BUILD_FOLDER)
+
+build: create $(CXX_OBJECTS)
+	$(COMPILE) $(CXX_OBJECTS) $(LDFLAGS) -o $(BUILD_FOLDER)/$(EXECUTABLE_NAME)
 
 execute:
-	main.exe
+	./$(BUILD_FOLDER)/$(EXECUTABLE_NAME).exe
 
 clean:
-	del *.exe
-	del *.o
+	rm -rf $(BUILD_FOLDER)
 
-%.o: %.cpp
+$(BUILD_FOLDER)/%.o: $(SRC_FOLDER)/%.cpp
 	$(COMPILE) -c $< -o $@
